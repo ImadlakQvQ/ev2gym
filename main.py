@@ -57,12 +57,12 @@ if __name__ == "__main__":
     
     run_name += f'{algorithm}_{reward_function.__name__}_{state_function.__name__}'
 
-    # run = wandb.init(project=proj,
-    #                  sync_tensorboard=True,
-    #                  group=group_name,
-    #                  name=run_name,
-    #                  save_code=True,
-    #                  )
+    run = wandb.init(project=proj,
+                     sync_tensorboard=True,
+                     group=group_name,
+                     name=run_name,
+                     save_code=True,
+                     )
 
     gym.envs.register(id='evs-v0', entry_point='ev2gym.models.condogym:EV2Gym',
                       kwargs={'config_file': config_file,
@@ -123,14 +123,14 @@ if __name__ == "__main__":
     else:
         raise ValueError("Unknown algorithm")
 
-    # model.learn(total_timesteps=4000000,
-    #             progress_bar=True,
-    #             callback=[
-    #                 WandbCallback(
-    #                     gradient_save_freq=100000,
-    #                     model_save_path=f"test/saved_models/{group_name}/",
-    #                     verbose=2),
-    #                 eval_callback])
+    model.learn(total_timesteps=4000000,
+                progress_bar=True,
+                callback=[
+                    WandbCallback(
+                        gradient_save_freq=100000,
+                        model_save_path=f"test/saved_models/{group_name}/",
+                        verbose=2),
+                    eval_callback])
     model.learn(total_timesteps=4000000,
                 progress_bar=True)
 
