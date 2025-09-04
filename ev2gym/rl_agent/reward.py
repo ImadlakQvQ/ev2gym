@@ -1,6 +1,6 @@
 '''This file contains various example reward functions for the RL agent. Users can create their own reward function here or in their own file using the same structure as below
 '''
-
+# TODO reward
 import math
 
 def SquaredTrackingErrorReward(env,*args):
@@ -85,7 +85,20 @@ def profit_maximization(env, total_costs, user_satisfaction_list, *args):
     
     return reward
 
+def Condo_reward(env, total_costs, user_satisfaction_list, *args):
 
+    reward = total_costs
+
+    # 用户满意度惩罚
+    for score in user_satisfaction_list:
+        # reward -= 100 * (1 - score)
+        reward -= 100 * math.exp(-10*score)
+    # 变压器超载惩罚
+    for tr in env.transformers:
+        reward -= 100 * tr.get_how_overloaded()       
+
+
+    return reward
 
 # Previous reward functions for testing
 #############################################################################################################

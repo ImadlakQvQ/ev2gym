@@ -211,3 +211,56 @@ def BusinessPSTwithMoreKnowledge(env, *args):
     np.set_printoptions(suppress=True)
 
     return state
+
+def V2G_Condo(env, *args):
+    '''
+    This is the state function for the V2GProfitMax scenario with loads
+    '''
+    # state [current_step, current_power_usage, charge_prices:[t,t+20], n_tr*[loads-pv,power_limits, n_ev*[ev_soc, ev_remaining_time]], ]
+
+    state = [
+        (env.current_step),        
+    ]
+
+    state.append(env.current_power_usage[env.current_step-1])
+
+    charge_prices = abs(env.charge_prices[0, env.current_step:
+        env.current_step+20])
+    
+    if len(charge_prices) < 20:
+        charge_prices = np.append(charge_prices, np.zeros(20-len(charge_prices)))
+    
+    state.append(charge_prices)
+    
+    # For every transformer
+    for tr in env.transformers:
+        loads, pv = tr.get_load_pv_forecast(step = env.current_step,
+                                            horizon = 20)
+        power_limits = tr.get_power_limits(step = env.current_step,
+                                           horizon = 20)
+        state.append(loads-pv)
+        state.append(power_limits)
+        # For every charging station connected to the transformer
+        for cs in env.charging_stations:
+            if cs.connected_transformer == tr.id:
+
+                # For every EV connected to the charging station
+                for EV in cs.evs_connected:
+                    # If there is an EV connected
+                    if EV is not None:
+                        # NOTE 首先我们只考虑一样的车，之后再进一步做不同车型的优化
+                        state.append([
+                            EV.get_soc(),
+                            EV.time_of_arrival / env.simulation_length,
+                            EV.time_of_departure / env.simulation_length,
+                            EV.required_energy / EV.battery_capacity,            # required soc
+                            ])
+
+                    # else if there is no EV connected put zeros
+                    # TODO 这里修改ev状态的时候需要相应的修改0的个数
+                    else:
+                        state.append(np.zeros(4))
+
+    state = np.array(np.hstack(state))
+
+    return state

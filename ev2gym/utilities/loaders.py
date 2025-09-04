@@ -238,7 +238,7 @@ def load_transformers(env) -> List[Transformer]:
         if env.scenario == 'private':
             inflexible_loads = generate_residential_inflexible_loads(env)
 
-        # TODO add inflexible loads for public and workplace scenarios
+        # add inflexible loads for public and workplace scenarios
         else:
             inflexible_loads = generate_residential_inflexible_loads(env)
 
